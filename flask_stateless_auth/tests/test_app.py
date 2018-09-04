@@ -9,7 +9,7 @@ from flask_stateless_auth import current_stateless_user, _get_stateless_user
 
 
 class TestConfig():
-    #AUTH_TYPE = 'Bearer'         # Default
+    #DEFAULT_AUTH_TYPE = 'Bearer'         # Default
     #AUTH_HEADER = 'Authorization'# Default
     #ADD_CONTEXT_PROCESSOR = True # Default
     ## Other configs ##

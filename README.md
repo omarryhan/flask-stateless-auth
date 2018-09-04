@@ -85,6 +85,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
     # First loader
     @stateless_auth_manager.user_loader
     def user_by_token(token):
+    ''' where `token` is the token model loaded from the token table '''
         try:
             for user in users:
                 if user.id == token.id: return user # Use flask.str_safecmp instead
@@ -95,6 +96,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
     # Second loader
     @stateless_auth_manager.token_loader
     def token_by(token, token_type, auth_type):
+    ''' where `token` is the token loaded from the header '''
         try:
             for token in tokens:
                 if token_type == 'access'
@@ -129,7 +131,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
         stateless_auth_manager.init_app(app)
         app.run()
 
-- For a more comprehensive illustration of the module check out: `tests/app_example.py` and the tests if you feel like it.
+- For a more comprehensive illustration of the module check out: `tests/app_example.py` and `tests/test_app.py`.
 
 ## Testing
 run tests with: `pytest -v`

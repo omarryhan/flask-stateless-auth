@@ -31,7 +31,7 @@ __all__ = [
 # TODO: Test invalid token_types
 # TODO: Test signals
 
-AUTH_TYPE = 'Bearer'
+DEFAULT_AUTH_TYPE = 'Bearer'
 AUTH_HEADER = 'Authorization'
 ADD_CONTEXT_PROCESSOR = True
 
@@ -46,9 +46,6 @@ def _get_stateless_user():
     return getattr(_request_ctx_stack.top, 'stateless_user', None)
 
 def token_required(token_type, auth_type=None):
-    '''
-    Unlike flask_login's 'login_required', this both authenticates and enforces user authentication
-    '''
     def inner(f):
         @wraps(f)
         def innermost(*args, **kwargs):
@@ -67,7 +64,7 @@ def token_required(token_type, auth_type=None):
         return innermost
     return inner
 
-class StatelessAuthError(Exception, object):
+class StatelessAuthError(Exception):
     def __init__(self, msg, code, type_):
         self.code = code
         self.msg = msg
@@ -82,7 +79,7 @@ class StatelessAuthManager:
 
     def init_app(self, app):
         app.stateless_auth_manager = self
-        self.auth_type = app.config.get('AUTH_TYPE', AUTH_TYPE)
+        self.default_auth_type = app.config.get('DEFAULT_AUTH_TYPE', DEFAULT_AUTH_TYPE)
         self.auth_header = app.config.get('AUTH_HEADER', AUTH_HEADER)
         self.add_context_processor = app.config.get('ADD_CONTEXT_PROCESSOR', ADD_CONTEXT_PROCESSOR)
         app.teardown_request(self.teardown)
@@ -109,7 +106,7 @@ class StatelessAuthManager:
         token = request.headers.get(self.auth_header)
         if token: token = token.split(" ")
         else: raise StatelessAuthError(msg="No token provided", code=400, type_='Token')
-        if len(token) == 2:
+        if len(token) == 2 and type(token) == list:
             if safe_str_cmp(token[0], auth_type):
                 return token[1]
             else: raise StatelessAuthError(msg="Invalid token type", code=400, type_='Token')
@@ -117,7 +114,7 @@ class StatelessAuthManager:
 
     def _set_user(self, token_type, auth_type):
         if auth_type is None:
-            auth_type = self.auth_type
+            auth_type = self.default_auth_type
         token = self._load_token_from_request(auth_type)
         token_model = self._load_token_model(token=token, token_type=token_type, auth_type=auth_type)
         self._check_token(token_model, token_type, auth_type)

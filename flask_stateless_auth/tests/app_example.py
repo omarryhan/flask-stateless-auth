@@ -17,7 +17,7 @@ app = Flask(__name__.split('.')[0])
 
 class Config:
     # Stateless auth configs
-    #AUTH_TYPE = 'Bearer'         # Default
+    #DEFAULT_AUTH_TYPE = 'Bearer'         # Default
     #TOKEN_HEADER = 'Authorization'# Default
     #ADD_CONTEXT_PROCESSOR = True  # Default
     # Other configs
