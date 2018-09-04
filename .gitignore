@@ -1,4 +1,6 @@
 .pytest_cache/
+.directory
+.vscode/
 dist/
 *__pycache__
 README
