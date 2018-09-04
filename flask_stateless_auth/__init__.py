@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Stateless user authentication management with regular tokens'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '6')
+__version_info__ = ('0', '0', '7')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
