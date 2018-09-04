@@ -9,12 +9,13 @@ A very lightweight db-stored-token authentication library
 - Flask-Stateless-Auth assists with stateless authentication in case a Flask developer decides to:
     - Authenticate statelessly without the use of sessions. (Typically used when implementing REST APIs).
     - Not to issue signed tokens e.g.(JWT), instead issue tokens that are to be validated against a db or a datastore of sorts.
-    - 
+
+
 - Flask-Stateless-Auth does not enforce the usage of any kind of db or data structure
-- 
 - Flask-Stateless-Auth however enforces the use of a certian format for your chosen authorization header, the format is as follows:
     - {'header_name': 'auth_type' + ' ' + 'token'}
-    - 
+
+
 - Developer is free to implement their own authorization protocol.
     - A typical `header_name` is 'Authorization'
     - A typical `auth_type` is 'Bearer'
@@ -26,8 +27,8 @@ A very lightweight db-stored-token authentication library
 
 Flask-Stateless-Auth needs 2 callbacks in order to function properly:
 
-- `token_loader`: should load a token given, a token and a token_type
-- `user_loader`: Should load a user given a token(token loaded from token loader)
+- `token_loader`: should load a token from your models given, a token and a token_type
+- `user_loader`: Should load a user from your models given a token(token loaded from token loader)
 
 Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler will receive an error with the following attributes:
 
@@ -36,7 +37,7 @@ Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler w
 - `error.type`: Error type ('Token', 'User')
 - The developer can then decide how to handle each error seperately controlling the info they would want to give out to the api client.
 
-Last but not least, the developer should raise a StatelessAuthError in the `token_loader` and `user_loader` callbacks in case any error occurs that might cause the function to return None.
+Last but not least, you should raise a StatelessAuthError in the `token_loader` and `user_loader` callbacks in case any error occurs that might cause the function to return None.
 
 ## API
 
@@ -129,7 +130,7 @@ Last but not least, the developer should raise a StatelessAuthError in the `toke
         stateless_auth_manager.init_app(app)
         app.run()
 
-- For a comprehensive view of how an app should look like, check out: `app_example.py` and the tests if you feel like it.
+- For a more comprehensive illustration of the module check out: `tests/app_example.py` and the tests if you feel like it.
 
 ## Testing
-run tests with: `pytest flask-stateless-auth/test_app.py`
+run tests with: `pytest -v`
