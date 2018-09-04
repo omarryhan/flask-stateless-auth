@@ -2,3 +2,7 @@
 dist/
 *__pycache__
 README
+.setup_notes
+.pypirc
+flask_stateless_auth.egg-info/
+build/
