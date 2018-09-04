@@ -22,7 +22,7 @@ __all__ = []
 # TODO: Test different auth headers and types
 # TODO: Test invalid tokens
 # TODO: Test invalid token_types
-# TODO: Make the "create token" endpoint to first check if a user owns a token, if true, refresh, if not, create to remove the one-to-one violation warning
+# TODO: Test signals
 
 AUTH_TYPE = 'Bearer'
 AUTH_HEADER = 'Authorization'
@@ -33,41 +33,34 @@ _signals = Namespace()
 user_authenticated = _signals.signal('user-authenticated')
 user_unauthorized = _signals.signal('user-unauthorized')
 
-
 current_stateless_user = LocalProxy(lambda: _get_stateless_user())
 
 def _get_stateless_user():
     return getattr(_request_ctx_stack.top, 'stateless_user', None)
 
-def token_required(token_type, auth_type=AUTH_TYPE):
+def token_required(token_type, auth_type=None):
     '''
     Unlike flask_login's 'login_required', this both authenticates and enforces user authentication
-    TODO: Find a workaround to change the default for auth_type to 
-    TODO: `current_app._get_current_object().stateless_auth_manager.self.auth_type` ie. `app.stateless_auth_manager.self.auth_type`
-    TODO: instead of hardcoding it to the module's global vars.
-    TODO: The reason you can't set it is because there is no app context and therefore no stateless_auth_manager
-    TODO: at the time the interpreter parses the token_required decorator
     '''
     def inner(f):
         @wraps(f)
         def innermost(*args, **kwargs):
+            app = current_app._get_current_object()
             try:
-                current_app._get_current_object().stateless_auth_manager._set_user(token_type, auth_type)
+                app.stateless_auth_manager._set_user(token_type, auth_type)
             except StatelessAuthError as e:
-                user_unauthorized.send(current_app.stateless_auth_manager)
+                user_unauthorized.send(app.stateless_auth_manager)
                 raise e
             except AttributeError as e:
                 print('Provide a token callback, a user callback and a StatelessAuthError handler as shown in StatelessAuthManager\'s docs')
                 raise e
             else:
-                user_authenticated.send(current_app.stateless_auth_manager)
+                user_authenticated.send(app.stateless_auth_manager)
                 return f(*args, **kwargs)
         return innermost
     return inner
 
 class StatelessAuthError(Exception, object):
-    ''' 400 Bad request, 401 Unauthorized, 402 Payment required, 403 Forbidden '''
-    ''' Error types: 1) Token 2) Subscription 3) User '''
     def __init__(self, msg, code, type_):
         self.code = code
         self.msg = msg
@@ -76,8 +69,6 @@ class StatelessAuthError(Exception, object):
         super(StatelessAuthError, self).__init__(self.full_msg)
 
 class StatelessAuthManager:
-    '''
-    '''
     def __init__(self, app=None):
         if app is not None:
             self.init_app(app)
@@ -104,8 +95,8 @@ class StatelessAuthManager:
     def _load_user_model(self, user_id):
         return self._user_callback(user_id)
 
-    def _load_token_model(self, token, token_type):
-        return self._token_callback(token=token, token_type=token_type)
+    def _load_token_model(self, token, token_type, auth_type):
+        return self._token_callback(token=token, token_type=token_type, auth_type=auth_type)
 
     def _load_token_from_request(self, auth_type):
         token = request.headers.get(self.auth_header)
@@ -118,33 +109,34 @@ class StatelessAuthManager:
         else: raise StatelessAuthError(msg='Invalid number of arguments in token header', code=400, type_='Token')
 
     def _set_user(self, token_type, auth_type):
+        if auth_type is None:
+            auth_type = self.auth_type
         token = self._load_token_from_request(auth_type)
-        token_model = self._load_token_model(token=token, token_type=token_type)
-        self._check_token(token_model, token_type)
+        token_model = self._load_token_model(token=token, token_type=token_type, auth_type=auth_type)
+        self._check_token(token_model, token_type, auth_type)
         user = self._load_user_model(token_model)
         self._check_user(user)
-        self._update_request_context_with(user=user, token=token)
+        self._update_request_context_with(user)
         if self.add_context_processor:
             self._update_context_processor_with(user)
 
-    def _check_token(self, token_model, token_type):
-        if token_model.token_expired(token_type):
+    def _check_token(self, token_model, token_type, auth_type):
+        if token_model.token_expired(token_type, auth_type):
             raise StatelessAuthError(msg='{} token expired'.format(token_type), code=401, type_='Token')
 
     def _check_user(self, user):
         if not user or not user.is_active:
             raise StatelessAuthError(msg='Invalid User', code=401, type_='User')
-
+    
     def _update_context_processor_with(self, user):
         current_app._get_current_object().context_processor(dict(current_stateless_user=user))
 
-    def _update_request_context_with(self, user=None, token=None):
+    def _update_request_context_with(self, user):
         ctx = _request_ctx_stack.top
-        if user is not None: ctx.stateless_user = user
-        if token is not None: ctx.token = token
+        ctx.stateless_user = user
   
 class TokenMixin:
-    def token_expired(self, token_type):
+    def token_expired(self, token_type, auth_type):
         return False
 
 class UserMixin:

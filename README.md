@@ -1,7 +1,6 @@
 # Flask-Stateless-Auth
 
-A very lightweight db-stored-token authentication library
-
+A lightweight authentication library for stateless APIs
 
 
 ## Features:
@@ -27,8 +26,8 @@ A very lightweight db-stored-token authentication library
 
 Flask-Stateless-Auth needs 2 callbacks in order to function properly:
 
-- `token_loader`: should load a token from your models given, a token and a token_type
-- `user_loader`: Should load a user from your models given a token(token loaded from token loader)
+- `token_loader`: Should load a token from your models given, a `token`, `token_type`, and `auth_type`
+- `user_loader`: Should load a user from your models given token(token loaded from token loader)
 
 Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler will receive an error with the following attributes:
 
@@ -95,7 +94,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
     
     # Second loader
     @stateless_auth_manager.token_loader
-    def token_by(token, token_type):
+    def token_by(token, token_type, auth_type):
         try:
             for token in tokens:
                 if token_type == 'access'

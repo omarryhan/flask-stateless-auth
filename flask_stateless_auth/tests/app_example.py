@@ -10,13 +10,14 @@ from flask_stateless_auth import StatelessAuthError, StatelessAuthManager, curre
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import safe_str_cmp
 
+
 db = SQLAlchemy()
 stateless_auth_manager = StatelessAuthManager()
 app = Flask(__name__.split('.')[0])
 
 class Config:
     # Stateless auth configs
-    #TOKEN_TYPE = 'Bearer'         # Default
+    #AUTH_TYPE = 'Bearer'         # Default
     #TOKEN_HEADER = 'Authorization'# Default
     #ADD_CONTEXT_PROCESSOR = True  # Default
     # Other configs
@@ -24,7 +25,6 @@ class Config:
     TOKENS_BYTES_LENGTH = 32
     ACCESS_TOKEN_DEFAULT_EXPIRY = 3600 # seconds
     REFRESH_TOKEN_DEFAULT_EXPIRY = 365 # days
-    SECRET_KEY = 'jd97as(DGS&(*ds8SD^GoSDO'
     DB_NAME = 'flask_stateless_auth_db'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DB_NAME
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -79,7 +79,7 @@ class ApiToken(db.Model, TokenMixin):
         else:
             return True
 
-    def token_expired(self, token_type):
+    def token_expired(self, token_type, auth_type):
         if token_type == 'access':
             return self.access_is_expired
         elif token_type == 'refresh':
@@ -108,7 +108,7 @@ def user_by_token(token):
         return user
 
 @stateless_auth_manager.token_loader
-def token_model_by(token, token_type='access'):
+def token_model_by(token, auth_type, token_type='access'):
     try:
         if token_type=='access':
             token_model = ApiToken.query.filter_by(access_token=token).one()
@@ -140,7 +140,11 @@ def user_endpoint():
 def create_token():
     data = json.loads(request.data)
     user = User.query.filter_by(username=data['username']).first()
-    token = ApiToken(user_id=user.id)
+    if user.api_token:
+        token = user.api_token
+        token.refresh_tokens()
+    else:
+        token = ApiToken(user_id=user.id)
     db.session.add(token)
     db.session.commit()
     return jsonify(token.as_dict), 200

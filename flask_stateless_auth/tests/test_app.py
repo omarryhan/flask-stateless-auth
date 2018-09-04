@@ -17,7 +17,6 @@ class TestConfig():
     TOKENS_BYTES_LENGTH = 32
     ACCESS_TOKEN_DEFAULT_EXPIRY = 3600 # seconds
     REFRESH_TOKEN_DEFAULT_EXPIRY = 365 # days
-    SECRET_KEY = 'jd97as(DGS&(*ds8SD^GoSDO'
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     DB_FILE_DESCRIPTOR, DB_NAME = tempfile.mkstemp(dir=BASE_DIR)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DB_NAME
