@@ -1,6 +1,6 @@
 # Flask-Stateless-Auth
 
-A lightweight authentication library for stateless APIs
+A lightweight authentication library for stateless APIs.
 
 
 ## Features:
@@ -9,22 +9,22 @@ A lightweight authentication library for stateless APIs
     - Authenticate statelessly without the use of sessions. (Typically used when implementing REST APIs).
     - Not to issue signed tokens e.g.(JWT), instead issue tokens that are to be validated against a db or a datastore of sorts.
 
+- Flask-Stateless-Auth is similar to OAUTH2 but it's specifically designed to provide the ability for *1st party* clients to authenticate with bearer tokens.
+- Flask-Stateless-Auth stores a current_stateless_user variable in the request context upon authentication using the `token_required` decorator
+
+- Developer is free to implement their own authorization scheme, However:
+    - A typical `header_name` is 'Authorization'
+    - A typical `auth_type` is 'Bearer'
+    - A typical `token` is a random b64 encoded string.
+    - A typical `token_type` is: an access or refresh token
+
+## Important Remarks:
 
 - Flask-Stateless-Auth does not enforce the usage of any kind of db or data structure
 - Flask-Stateless-Auth however enforces the use of a certian format for your chosen authorization header, the format is as follows:
     - {'header_name': 'auth_type' + ' ' + 'token'}
 
-
-- Developer is free to implement their own authorization protocol.
-    - A typical `header_name` is 'Authorization'
-    - A typical `auth_type` is 'Bearer'
-    - A typical `token` is a random string.
-    - A typical `token_type` is: an access, refresh or permenant token
-- Flask-Stateless-Auth stores a current_stateless_user variable in the request context upon authentication using the `token_required` decorator
-
-## Important Remarks:
-
-Flask-Stateless-Auth needs 2 callbacks in order to function properly:
+- Flask-Stateless-Auth needs 2 callbacks in order to function properly:
 
 - `token_loader`: Should load a token from your models given, a `token`, `token_type`, and `auth_type`
 - `user_loader`: Should load a user from your models given token(token loaded from token loader)
@@ -33,10 +33,10 @@ Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler w
 
 - `error.code`: suggested status code
 - `error.msg`: message
-- `error.type`: Error type ('Token', 'User')
-- The developer can then decide how to handle each error seperately controlling the info they would want to give out to the api client.
+- `error.type`: Error type ('token', 'request', 'scope')
+- The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
 
-Last but not least, you should raise a StatelessAuthError in the `token_loader` and `user_loader` callbacks in case any error occurs that might cause the function to return None.
+Last and most importantly, you should raise a StatelessAuthError in the `token_loader` and `user_loader` callbacks to ensure that those methods do not return None.
 
 ## API
 
@@ -89,9 +89,9 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
         try:
             for user in users:
                 if user.id == token.id: return user # Use flask.str_safecmp instead
-                    raise StatelessAuthError(msg='token belongs to a user but user wasn't found, code=401, type_='User')
+                    raise StatelessAuthError(msg='token belongs to a user but user wasn't found, code=401, type_='Token')
         except:
-            raise StatelessAuthError(msg='internal server error', code=500, type_='Token')
+            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
     
     # Second loader
     @stateless_auth_manager.token_loader
@@ -107,7 +107,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
                         return token
             raise StatelessAuthError(msg='{} token doesn\'t belong to a user'.format(token.type), code=401, type_='Token')
         except:
-            raise StatelessAuthError(msg='internal server error', code=500, type_='Token')
+            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
     
     # Error handler
     @app.errorhandler(StatelessAuthError)
@@ -131,7 +131,7 @@ Last but not least, you should raise a StatelessAuthError in the `token_loader` 
         stateless_auth_manager.init_app(app)
         app.run()
 
-- For a more comprehensive illustration of the module check out: `tests/app_example.py` and `tests/test_app.py`.
+- For a more comprehensive illustration, check out: `tests/app_example.py` and `tests/test_app.py`.
 
 ## Testing
 run tests with: `pytest -v`

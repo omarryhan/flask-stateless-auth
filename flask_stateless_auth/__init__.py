@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Stateless user authentication management with regular tokens'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '7')
+__version_info__ = ('0', '0', '8')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -24,12 +24,13 @@ __all__ = [
     'TokenMixin'
 ]
 
-# TODO: Write some unit tests
+# TODO: Unit test
 # TODO: Test app_context_processor
 # TODO: Test different auth headers and types
 # TODO: Test invalid tokens
 # TODO: Test invalid token_types
 # TODO: Test signals
+# TODO: Support python 2
 
 DEFAULT_AUTH_TYPE = 'Bearer'
 AUTH_HEADER = 'Authorization'
@@ -37,7 +38,7 @@ ADD_CONTEXT_PROCESSOR = True
 
 _signals = Namespace()
 
-user_authenticated = _signals.signal('user-authenticated')
+user_authorized = _signals.signal('user-authorized')
 user_unauthorized = _signals.signal('user-unauthorized')
 
 current_stateless_user = LocalProxy(lambda: _get_stateless_user())
@@ -59,12 +60,13 @@ def token_required(token_type, auth_type=None):
                 print('Provide a token callback, a user callback and a StatelessAuthError handler as shown in StatelessAuthManager\'s docs')
                 raise e
             else:
-                user_authenticated.send(app.stateless_auth_manager)
+                user_authorized.send(app.stateless_auth_manager)
                 return f(*args, **kwargs)
         return innermost
     return inner
 
 class StatelessAuthError(Exception):
+    ''' 400: request, 401: token, 403: scope 500: server'''
     def __init__(self, msg, code, type_):
         self.code = code
         self.msg = msg
@@ -105,12 +107,12 @@ class StatelessAuthManager:
     def _load_token_from_request(self, auth_type):
         token = request.headers.get(self.auth_header)
         if token: token = token.split(" ")
-        else: raise StatelessAuthError(msg="No token provided", code=400, type_='Token')
+        else: raise StatelessAuthError(msg="No token provided", code=400, type_='Request')
         if len(token) == 2 and type(token) == list:
             if safe_str_cmp(token[0], auth_type):
                 return token[1]
-            else: raise StatelessAuthError(msg="Invalid token type", code=400, type_='Token')
-        else: raise StatelessAuthError(msg='Invalid number of arguments in token header', code=400, type_='Token')
+            else: raise StatelessAuthError(msg="Invalid token type", code=400, type_='Request')
+        else: raise StatelessAuthError(msg='Invalid number of arguments in token header', code=400, type_='Request')
 
     def _set_user(self, token_type, auth_type):
         if auth_type is None:
@@ -130,7 +132,7 @@ class StatelessAuthManager:
 
     def _check_user(self, user):
         if not user or not user.is_active:
-            raise StatelessAuthError(msg='Invalid User', code=401, type_='User')
+            raise StatelessAuthError(msg='Invalid User', code=401, type_='Token')
     
     def _update_context_processor_with(self, user):
         current_app._get_current_object().context_processor(dict(current_stateless_user=user))
@@ -147,5 +149,3 @@ class UserMixin:
     @property
     def is_active(self):
         return True
-
-

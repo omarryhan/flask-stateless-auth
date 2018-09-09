@@ -100,9 +100,9 @@ def user_by_token(token):
     try:
         user = User.query.filter_by(id=token.user_id).one()
     except NoResultFound:
-        raise StatelessAuthError(msg='Server error', code=500, type_='User') # Tokens should always have a user, hence the 500 not the 
+        raise StatelessAuthError(msg='Server error', code=500, type_='Server') # Tokens should always have a user, hence the 500 not the 
     except Exception as e:
-        raise StatelessAuthError(msg='Server error', code=500, type_='User')
+        raise StatelessAuthError(msg='Server error', code=500, type_='Server')
         #log.critical(e)
     else:
         return user
@@ -117,7 +117,7 @@ def token_model_by(token, auth_type, token_type='access'):
     except NoResultFound:
         raise StatelessAuthError(msg='{} token doesn\'t belong to a user'.format(token_type), code=401, type_='Token')
     except Exception as e:
-        raise StatelessAuthError(msg='Server error', code=500, type_='Token')
+        raise StatelessAuthError(msg='Server error', code=500, type_='Server')
         #log.critical(e)
     else:
         return token_model
