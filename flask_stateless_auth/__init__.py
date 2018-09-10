@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Stateless user authentication management with regular tokens'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '8')
+__version_info__ = ('0', '0', '9')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -84,6 +84,8 @@ class StatelessAuthManager:
         self.default_auth_type = app.config.get('DEFAULT_AUTH_TYPE', DEFAULT_AUTH_TYPE)
         self.auth_header = app.config.get('AUTH_HEADER', AUTH_HEADER)
         self.add_context_processor = app.config.get('ADD_CONTEXT_PROCESSOR', ADD_CONTEXT_PROCESSOR)
+        if self.add_context_processor:
+            app.context_processor(self._stateless_user_context_processor)
         app.teardown_request(self.teardown)
 
     def teardown(self, exception):
@@ -123,8 +125,6 @@ class StatelessAuthManager:
         user = self._load_user_model(token_model)
         self._check_user(user)
         self._update_request_context_with(user)
-        if self.add_context_processor:
-            self._update_context_processor_with(user)
 
     def _check_token(self, token_model, token_type, auth_type):
         if token_model.token_expired(token_type, auth_type):
@@ -133,9 +133,9 @@ class StatelessAuthManager:
     def _check_user(self, user):
         if not user or not user.is_active:
             raise StatelessAuthError(msg='Invalid User', code=401, type_='Token')
-    
-    def _update_context_processor_with(self, user):
-        current_app._get_current_object().context_processor(dict(current_stateless_user=user))
+
+    def _stateless_user_context_processor(self):
+        return dict(current_stateless_user=getattr(_request_ctx_stack.top, 'stateless_user', None))
 
     def _update_request_context_with(self, user):
         ctx = _request_ctx_stack.top
