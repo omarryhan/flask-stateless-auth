@@ -128,13 +128,16 @@ def index():
 
 @app.route('/user', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def user_endpoint():
+    data = json.loads(request.data)
     if request.method == 'POST':
-        data = json.loads(request.data)
         user = User(username=data['username'])
         db.session.add(user)
-        db.session.commit()
-        data = {'msg': 'Success!'}
-        return jsonify(data), 200
+    elif request.method == 'DELETE':
+        user = User.query.filter_by(username=data['username']).first()
+        db.session.delete(user)
+    db.session.commit()
+    data = {'msg': 'Success!'}
+    return jsonify(data), 201
 
 @app.route('/create_token', methods=['POST'])
 def create_token():
@@ -147,7 +150,15 @@ def create_token():
         token = ApiToken(user_id=user.id)
     db.session.add(token)
     db.session.commit()
-    return jsonify(token.as_dict), 200
+    return jsonify(token.as_dict), 201
+
+@app.route('/delete_token', methods=['DELETE'])
+def delete_token():
+    data = json.loads(request.data)
+    token = User.query.filter_by(username=data['username']).one().api_token
+    db.session.delete(token)
+    db.session.commit()
+    return jsonify({'msg': 'Success!'}), 201
 
 @app.route('/refresh_token', methods=['PUT'])
 @token_required(token_type='refresh')
@@ -155,7 +166,7 @@ def refresh_token():
     current_stateless_user.api_token.refresh_tokens()
     db.session.add(current_stateless_user.api_token)
     db.session.commit()
-    return jsonify(current_stateless_user.api_token.as_dict), 200
+    return jsonify(current_stateless_user.api_token.as_dict), 201
 
 @app.route('/secret', methods=['GET'])
 @token_required('access') #access by default

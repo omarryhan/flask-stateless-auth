@@ -47,6 +47,10 @@ Last and most importantly, you should raise a StatelessAuthError in the `token_l
 - TokenMixin
 - UserMixin
 
+## Installation
+
+`$pip install flask-stateless-auth`
+
 ## Quick Start 
 
     # initializations
@@ -81,19 +85,8 @@ Last and most importantly, you should raise a StatelessAuthError in the `token_l
         Token(1, 'first_user_access_token', 'first_user_refresh_token'),
         Token(2, 'second_user_access_token', 'second_user_refresh_token')
     ]
-    
+
     # First loader
-    @stateless_auth_manager.user_loader
-    def user_by_token(token):
-    ''' where `token` is the token model loaded from the token table '''
-        try:
-            for user in users:
-                if user.id == token.id: return user # Use flask.str_safecmp instead
-                    raise StatelessAuthError(msg='token belongs to a user but user wasn't found, code=401, type_='Token')
-        except:
-            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
-    
-    # Second loader
     @stateless_auth_manager.token_loader
     def token_by(token, token_type, auth_type):
     ''' where `token` is the token loaded from the header '''
@@ -105,14 +98,28 @@ Last and most importantly, you should raise a StatelessAuthError in the `token_l
                 elif token_type == 'refresh':
                     if token.refresh_token == token:
                         return token
-            raise StatelessAuthError(msg='{} token doesn\'t belong to a user'.format(token.type), code=401, type_='Token')
-        except:
+            raise StatelessAuthError(msg='{} Invalid token'.format(token.type), code=401, type_='Token')
+        except Exception as e:
+            log.critical(e)
             raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
+    
+    # Second loader
+    @stateless_auth_manager.user_loader
+    def user_by_token(token):
+    ''' where `token` is the token model loaded from the token table '''
+        try:
+            for user in users:
+                if user.id == token.id: return user
+        except Exception as e:
+            log.critical(e)
+            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
+        log.critical('token: {} belongs to a user: {} but user wasn't found'.format(token.id, user.id))
+        raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
     
     # Error handler
     @app.errorhandler(StatelessAuthError)
     def handle_stateless_auth_error(error):
-        return jsonify({'error': error.msg}), error.code
+        return jsonify({'error': error.full_msg}), error.code
     
     @app.route('/secret', methods=['GET'])
     @token_required(token_type='access', auth_type='Bearer') #access by default

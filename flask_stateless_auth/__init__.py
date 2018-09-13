@@ -26,9 +26,7 @@ __all__ = [
 
 # TODO: Unit test
 # TODO: Test app_context_processor
-# TODO: Test different auth headers and types
-# TODO: Test invalid tokens
-# TODO: Test invalid token_types
+# TODO: Test different auth headers
 # TODO: Test signals
 # TODO: Support python 2
 
