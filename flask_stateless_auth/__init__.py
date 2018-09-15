@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Stateless user authentication management with regular tokens'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '10')
+__version_info__ = ('0', '0', '11')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -108,7 +108,7 @@ class StatelessAuthManager:
         token = request.headers.get(self.auth_header)
         if token: token = token.split(" ")
         else: raise StatelessAuthError(msg="No token provided", code=400, type_='Request')
-        if len(token) == 2 and type(token) == list:
+        if len(token) == 2 and isinstance(token, list):
             if safe_str_cmp(token[0], auth_type):
                 return token[1]
             else: raise StatelessAuthError(msg="Invalid token type", code=400, type_='Request')
@@ -119,8 +119,12 @@ class StatelessAuthManager:
             auth_type = self.default_auth_type
         token = self._load_token_from_request(auth_type)
         token_model = self._load_token_model(token=token, token_type=token_type, auth_type=auth_type)
+        if not token_model:
+            raise StatelessAuthError(msg='Invalid token', code=401, type_='Token')
         self._check_token(token_model, token_type, auth_type)
         user = self._load_user_model(token_model)
+        if not user:
+            raise StatelessAuthError(msg='Internal server error', code=500, type_='Server')
         self._check_user(user)
         self._update_request_context_with(user)
 

@@ -41,7 +41,7 @@ def client():
     os.close(config.DB_FILE_DESCRIPTOR)
     os.unlink(config.DB_NAME)
 
-@pytest.fixture('function')
+@pytest.fixture('session')
 def valid_test_user(client):
     user = {'username': user_string_generator()}
     data = json.dumps(user)
