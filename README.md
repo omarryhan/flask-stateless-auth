@@ -1,6 +1,6 @@
 # Flask-Stateless-Auth
 
-A lightweight authentication library for stateless APIs.
+A lightweight no-batteries-included stateless authentication extension for Flask.
 
 
 ## Features:
@@ -9,7 +9,7 @@ A lightweight authentication library for stateless APIs.
     - Authenticate statelessly without the use of sessions. (Typically used when implementing REST APIs).
     - Not to issue signed tokens e.g.(JWT), instead issue tokens that are to be validated against a db or a datastore of sorts.
 
-- Flask-Stateless-Auth is similar to OAUTH2 but it's specifically designed to provide the ability for *1st party* clients to authenticate with bearer tokens.
+- Flask-Stateless-Auth is similar to OAUTH2 but it's specifically designed to provide **1st party** clients the ability to authenticate with **secret** bearer tokens.
 - Flask-Stateless-Auth stores a current_stateless_user variable in the request context upon authentication using the `token_required` decorator
 
 - Developer is free to implement their own authorization scheme, However:
@@ -20,23 +20,23 @@ A lightweight authentication library for stateless APIs.
 
 ## Important Remarks:
 
-- Flask-Stateless-Auth does not enforce the usage of any kind of db or data structure
-- Flask-Stateless-Auth however enforces the use of a certian format for your chosen authorization header, the format is as follows:
+1. Flask-Stateless-Auth however enforces the use of a certian format for your chosen authorization header, the format is as follows:
     - {'header_name': 'auth_type' + ' ' + 'token'}
 
-- Flask-Stateless-Auth needs 2 callbacks in order to function properly:
+2. Flask-Stateless-Auth needs 2 callbacks in order to function properly:
 
-- `token_loader`: Should load a token from your models given, a `token`, `token_type`, and `auth_type`
-- `user_loader`: Should load a user from your models given token(token loaded from token loader)
+    1. `token_loader`: Should load a token from your models given, a `token`, `token_type`, and `auth_type`
+    2. `user_loader`: Should load a user from your models given token(token loaded from token loader)
 
-Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler will receive an error with the following attributes:
+3. Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler will receive an error with the following attributes:
 
-- `error.code`: suggested status code
-- `error.msg`: message
-- `error.type`: Error type ('token', 'request', 'scope')
-- The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
+    - `error.code`: suggested status code
+    - `error.msg`: message
+    - `error.type`: Error type ('token', 'request', 'scope')
+    - `error.full_msg`: Error msg + type
+    - The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
 
-Last and most importantly, you should raise a StatelessAuthError in the `token_loader` and `user_loader` callbacks to ensure that those methods do not return None.
+4. It is recommended that you raise a StatelessAuthError in the case a token or a user cannot be loaded and provide reasonably descriptive information for the client. However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
 
 ## API
 

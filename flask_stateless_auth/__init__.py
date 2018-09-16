@@ -6,9 +6,9 @@ from flask import jsonify, request, current_app, _request_ctx_stack, has_request
 from flask.signals import Namespace
 
 __title__ = 'Flask-Stateless-Auth'
-__description__ = 'Stateless user authentication management with regular tokens'
+__description__ = 'Flask stateless authentication with secrets'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '11')
+__version_info__ = ('0', '0', '12')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -39,6 +39,7 @@ _signals = Namespace()
 user_authorized = _signals.signal('user-authorized')
 user_unauthorized = _signals.signal('user-unauthorized')
 
+# http://werkzeug.pocoo.org/docs/0.14/local/
 current_stateless_user = LocalProxy(lambda: _get_stateless_user())
 
 def _get_stateless_user():
