@@ -12,9 +12,10 @@ from flask_stateless_auth import current_stateless_user, _get_stateless_user
 
 
 class TestConfig():
-    #DEFAULT_AUTH_TYPE = 'Bearer'         # Default
+    #DEFAULT_AUTH_TYPE = 'Bearer' # Default
     #AUTH_HEADER = 'Authorization'# Default
     #ADD_CONTEXT_PROCESSOR = True # Default
+    #DEFAULT_TOKEN_TYPE = 'access'# Default
     ## Other configs ##
     TESTING = True
     TOKENS_BYTES_LENGTH = 32

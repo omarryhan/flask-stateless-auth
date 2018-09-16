@@ -62,7 +62,8 @@ A lightweight no-batteries-included stateless authentication extension for Flask
         #TOKEN_TYPE = 'Bearer'         # Default
         #TOKEN_HEADER = 'Authorization'# Default
         #ADD_CONTEXT_PROCESSOR = True  # Default
-    
+        #DEFAULT_TOKEN_TYPE = 'access' # Default
+
     # models
     class User(UserMixin):
         def __init__(self, id, username):
@@ -128,7 +129,7 @@ A lightweight no-batteries-included stateless authentication extension for Flask
         return jsonify(data), 200
     
     @app.route('/whoami', methods=['GET'])
-    @token_required('access')
+    @token_required()
     def whoami():
         data = {'my_username': current_stateless_user.username}
         return jsonify(data), 200

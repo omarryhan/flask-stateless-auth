@@ -169,13 +169,13 @@ def refresh_token():
     return jsonify(current_stateless_user.api_token.as_dict), 201
 
 @app.route('/secret', methods=['GET'])
-@token_required('access') #access by default
+@token_required(token_type='access') #access by default
 def secret():
     data = {'secret': 'Stateless auth is awesome :O'}
     return jsonify(data), 200
 
 @app.route('/whoami', methods=['GET'])
-@token_required('access')
+@token_required()
 def whoami():
     data = {'my_username': current_stateless_user.username}
     return jsonify(data), 200

@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Flask stateless authentication with secrets'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '12')
+__version_info__ = ('0', '0', '13')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -33,6 +33,7 @@ __all__ = [
 DEFAULT_AUTH_TYPE = 'Bearer'
 AUTH_HEADER = 'Authorization'
 ADD_CONTEXT_PROCESSOR = True
+DEFAULT_TOKEN_TYPE = 'access'
 
 _signals = Namespace()
 
@@ -45,7 +46,7 @@ current_stateless_user = LocalProxy(lambda: _get_stateless_user())
 def _get_stateless_user():
     return getattr(_request_ctx_stack.top, 'stateless_user', None)
 
-def token_required(token_type, auth_type=None):
+def token_required(token_type=None, auth_type=None):
     def inner(f):
         @wraps(f)
         def innermost(*args, **kwargs):
@@ -80,12 +81,16 @@ class StatelessAuthManager:
 
     def init_app(self, app):
         app.stateless_auth_manager = self
-        self.default_auth_type = app.config.get('DEFAULT_AUTH_TYPE', DEFAULT_AUTH_TYPE)
-        self.auth_header = app.config.get('AUTH_HEADER', AUTH_HEADER)
-        self.add_context_processor = app.config.get('ADD_CONTEXT_PROCESSOR', ADD_CONTEXT_PROCESSOR)
+        self.init_configs(app)
         if self.add_context_processor:
             app.context_processor(self._stateless_user_context_processor)
         app.teardown_request(self.teardown)
+
+    def init_configs(self, app):
+        self.default_auth_type = app.config.get('DEFAULT_AUTH_TYPE', DEFAULT_AUTH_TYPE)
+        self.auth_header = app.config.get('AUTH_HEADER', AUTH_HEADER)
+        self.add_context_processor = app.config.get('ADD_CONTEXT_PROCESSOR', ADD_CONTEXT_PROCESSOR)
+        self.default_token_type = app.config.get('DEFAULT_TOKEN_TYPE', DEFAULT_TOKEN_TYPE)
 
     def teardown(self, exception):
         ''' TODO: Should there be anything here?'''
@@ -118,6 +123,8 @@ class StatelessAuthManager:
     def _set_user(self, token_type, auth_type):
         if auth_type is None:
             auth_type = self.default_auth_type
+        if token_type is None:
+            token_type = self.default_token_type
         token = self._load_token_from_request(auth_type)
         token_model = self._load_token_model(token=token, token_type=token_type, auth_type=auth_type)
         if not token_model:
