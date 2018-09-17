@@ -8,7 +8,7 @@ from flask.signals import Namespace
 __title__ = 'Flask-Stateless-Auth'
 __description__ = 'Flask stateless authentication with secrets'
 __url__ = 'https://github.com/omarryhan/flask-stateless-auth'
-__version_info__ = ('0', '0', '13')
+__version_info__ = ('0', '0', '14')
 __version__ = '.'.join(__version_info__)
 __author__ = 'Omar Ryhan'
 __author_email__ = 'omarryhan@gmail.com'
@@ -26,7 +26,6 @@ __all__ = [
 
 # TODO: Unit test
 # TODO: Test app_context_processor
-# TODO: Test different auth headers
 # TODO: Test signals
 # TODO: Support python 2
 
@@ -40,7 +39,6 @@ _signals = Namespace()
 user_authorized = _signals.signal('user-authorized')
 user_unauthorized = _signals.signal('user-unauthorized')
 
-# http://werkzeug.pocoo.org/docs/0.14/local/
 current_stateless_user = LocalProxy(lambda: _get_stateless_user())
 
 def _get_stateless_user():
@@ -81,12 +79,12 @@ class StatelessAuthManager:
 
     def init_app(self, app):
         app.stateless_auth_manager = self
-        self.init_configs(app)
+        self._init_configs(app)
         if self.add_context_processor:
             app.context_processor(self._stateless_user_context_processor)
         app.teardown_request(self.teardown)
 
-    def init_configs(self, app):
+    def _init_configs(self, app):
         self.default_auth_type = app.config.get('DEFAULT_AUTH_TYPE', DEFAULT_AUTH_TYPE)
         self.auth_header = app.config.get('AUTH_HEADER', AUTH_HEADER)
         self.add_context_processor = app.config.get('ADD_CONTEXT_PROCESSOR', ADD_CONTEXT_PROCESSOR)

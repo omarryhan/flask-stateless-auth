@@ -67,7 +67,7 @@ def test_app_is_functional(client):
     assert res.status_code == 200
     assert b'hello' in res.data
 
-def test_create_user(client, valid_test_user):
+def test_user_created(client, valid_test_user):
     with app.app_context():
         assert User.query.filter_by(username=valid_test_user['username']).one()
 
@@ -92,7 +92,7 @@ def test_token_refresh(client, valid_test_user, valid_test_user_token):
     assert refresh_token['access_token'] != new_token['access_token'] 
     assert refresh_token['refresh_token'] != new_token['refresh_token']
 
-def test_secret_endpoint(client, valid_test_user, valid_test_user_token):
+def test_secret_valid_call(client, valid_test_user, valid_test_user_token):
     auth_header = {'Authorization': 'Bearer {}'.format(valid_test_user_token['access_token'])}
 
     # without preserving original context
@@ -130,7 +130,7 @@ def test_secret_endpoint_invalid_token(client, valid_test_user_token):
     assert json_res.get('secret') is None
 
 def test_secret_endpoint_bad_request(client, valid_test_user_token):
-    bad_request = valid_test_user_token['access_token'] + 'bad string for a bad request'
+    bad_request = valid_test_user_token['access_token'] + 'bad string for a bad request)&)YHJhh98%)%&^*)&)@#$%تةنةنةتﻻ'
     header = {'Authorization': 'Bearer {}'.format(bad_request)}
 
     secret_res = client.get('/secret', headers=header)
