@@ -2,7 +2,7 @@ from functools import wraps
 
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
-from flask import jsonify, request, current_app, _request_ctx_stack, has_request_context
+from flask import jsonify, request, current_app, _request_ctx_stack
 from flask.signals import Namespace
 
 __title__ = 'Flask-Stateless-Auth'

@@ -36,7 +36,13 @@ A lightweight no-batteries-included stateless authentication extension for Flask
     - `error.full_msg`: Error msg + type
     - The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
 
-4. It is recommended that you raise a StatelessAuthError in the case a token or a user cannot be loaded and provide reasonably descriptive information for the client. However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
+4. It is recommended that you raise a StatelessAuthError in case a token or a user cannot be loaded. Provide reasonably descriptive information for the client on the why the user couldn't be loaded . However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
+
+5. Your user model must have a `is_active` property which returns a boolean.
+
+6. Yout token model must have a `is_expired()` method that takes a request's `auth_type` (e.g. 'bearer') and `token_type` (e.g. 'access' or 'refresh').
+
+7. If you don't want to implement point `5.` and `6.` then you can simply make you user and token model inherit from the `UserMixin` and `TokenMixin` mixins respecitvely.
 
 ## API
 

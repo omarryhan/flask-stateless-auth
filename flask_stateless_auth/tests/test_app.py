@@ -62,6 +62,9 @@ def valid_test_user_token(client, valid_test_user):
     res = client.delete('/delete_token', data=data)
     assert res.status_code == 201
 
+def test_current_stateless_user_is_none():
+    assert not current_stateless_user # Shouldn't test it with `is None` as it's a LocalProxy type
+
 def test_app_is_functional(client):
     res = client.get('/')
     assert res.status_code == 200
