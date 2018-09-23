@@ -1,5 +1,7 @@
+sudo: false
 language: python
 python:
   - 3.6
-install: pip install -r test_requirements.txt
-script: py.test -vs --no-print-logs --cov flask_stateless_auth/
+install:
+  pip install tox-travis
+script: tox
