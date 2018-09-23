@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master)](https://travis-ci.org/omarryhan/flask-stateless-auth)
 # Flask-Stateless-Auth
 
 A lightweight no-batteries-included stateless authentication extension for Flask.
