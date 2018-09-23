@@ -1,18 +1,7 @@
-.pytest_cache/
 .directory
 .vscode/
-dist/
-*__pycache__
-README
-.setup_notes
-.pypirc
-flask_stateless_auth.egg-info/
-build/
-.tox/
-
-## Standard python gitignores ##
-
-
+.pypirc*
+## Standard python gitignores from: https://github.com/github/gitignore ##
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
