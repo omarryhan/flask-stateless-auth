@@ -2,7 +2,7 @@ from functools import wraps
 
 from werkzeug.local import LocalProxy
 from werkzeug.security import safe_str_cmp
-from flask import jsonify, request, current_app, _request_ctx_stack
+from flask import jsonify, request, current_app, _request_ctx_stack, has_request_context
 from flask.signals import Namespace
 
 __title__ = 'Flask-Stateless-Auth'
@@ -42,7 +42,9 @@ user_unauthorized = _signals.signal('user-unauthorized')
 current_stateless_user = LocalProxy(lambda: _get_stateless_user())
 
 def _get_stateless_user():
-    return getattr(_request_ctx_stack.top, 'stateless_user', None)
+    if has_request_context:
+        return getattr(_request_ctx_stack.top, 'stateless_user', None)
+    else: return None
 
 def token_required(token_type=None, auth_type=None):
     def inner(f):
@@ -143,7 +145,7 @@ class StatelessAuthManager:
             raise StatelessAuthError(msg='Invalid User', code=401, type_='Token')
 
     def _stateless_user_context_processor(self):
-        return dict(current_stateless_user=getattr(_request_ctx_stack.top, 'stateless_user', None))
+        return dict(current_stateless_user=_get_stateless_user())
 
     def _update_request_context_with(self, user):
         ctx = _request_ctx_stack.top
