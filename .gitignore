@@ -8,3 +8,4 @@ README
 .pypirc
 flask_stateless_auth.egg-info/
 build/
+.tox/
