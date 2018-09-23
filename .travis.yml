@@ -1,5 +1,5 @@
 language: python
 python:
   - 3.6
-install: pip install -r travis_requirements.txt
+install: pip install -r test_requirements.txt
 script: pytest -v

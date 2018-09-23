@@ -148,4 +148,4 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 - For a more comprehensive illustration, check out: `tests/app_example.py` and `tests/test_app.py`.
 
 ## Testing
-run tests with: `pytest -v`
+run tests with: `$tox`

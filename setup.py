@@ -6,7 +6,8 @@ install_requires = [
 
 tests_require = [
     'flask_sqlalchemy',
-    'pytest'
+    'pytest',
+    'tox'
 ]
 
 with open("README.md", "r") as fh:
@@ -14,7 +15,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flask-stateless-auth",
-    version="0.0.14",
+    version="0.0.",
     author="Omar Ryhan",
     author_email="omarryhan@gmail.com",
     license="MIT",
