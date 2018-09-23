@@ -1,4 +1,3 @@
-
 import os
 import datetime
 import secrets
@@ -6,10 +5,10 @@ import json
 
 from flask import Flask, abort, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_stateless_auth import StatelessAuthError, StatelessAuthManager, current_stateless_user, UserMixin, TokenMixin, token_required
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from werkzeug.security import safe_str_cmp
 
+from flask_stateless_auth import StatelessAuthError, StatelessAuthManager, current_stateless_user, UserMixin, TokenMixin, token_required
 
 db = SQLAlchemy()
 stateless_auth_manager = StatelessAuthManager()

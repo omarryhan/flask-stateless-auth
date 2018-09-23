@@ -7,7 +7,8 @@ import random
 import string
 
 from flask import request, current_app, g
-from flask_stateless_auth.tests.app_example import db, app, stateless_auth_manager, User, ApiToken
+
+from .app_example import db, app, stateless_auth_manager, User, ApiToken
 from flask_stateless_auth import current_stateless_user, _get_stateless_user
 
 
