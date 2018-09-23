@@ -4,4 +4,5 @@ python:
   - 3.5
   - 3.6
 install: pip install -r requirements.txt
-script: pytest -v
+script: cd .. && pytest -v
+
