@@ -8,8 +8,7 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 - Flask-Stateless-Auth assists with stateless authentication in case a Flask developer decides to:
     - Authenticate statelessly without the use of sessions. (Typically used when implementing REST APIs).
     - Not to issue signed tokens e.g.(JWT), instead issue tokens that are to be validated against a db or a datastore of sorts.
-
-- Flask-Stateless-Auth is similar to OAUTH2 but it's specifically designed to provide **1st party** clients the ability to authenticate with **secret** bearer tokens.
+    - 
 - Flask-Stateless-Auth stores a current_stateless_user variable in the request context upon authentication using the `token_required` decorator
 
 - Developer is free to implement their own authorization scheme, However:
@@ -20,7 +19,7 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 
 ## Important Remarks:
 
-1. Flask-Stateless-Auth however enforces the use of a certian format for your chosen authorization header, the format is as follows:
+1. Flask-Stateless-Auth enforces the use of the following authorization format:
     - {'header_name': 'auth_type' + ' ' + 'token'}
 
 2. Flask-Stateless-Auth needs 2 callbacks in order to function properly:
@@ -36,13 +35,13 @@ A lightweight no-batteries-included stateless authentication extension for Flask
     - `error.full_msg`: Error msg + type
     - The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
 
-4. It is recommended that you raise a StatelessAuthError in case a token or a user cannot be loaded. Provide reasonably descriptive information for the client on the why the user couldn't be loaded . However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
+4. It is recommended that you raise a StatelessAuthError in case a token or a user cannot be loaded. However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
 
 5. Your user model must have a `is_active` property which returns a boolean.
 
 6. Yout token model must have a `is_expired()` method that takes a request's `auth_type` (e.g. 'bearer') and `token_type` (e.g. 'access' or 'refresh').
 
-7. If you don't want to implement point `5.` and `6.` then you can simply make you user and token model inherit from the `UserMixin` and `TokenMixin` mixins respecitvely.
+7. If you don't want to implement point `5.` and `6.` then you can simply make your user and token models inherit from the `UserMixin` and `TokenMixin` mixins respecitvely.
 
 ## API
 
