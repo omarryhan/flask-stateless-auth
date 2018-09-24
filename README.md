@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master)](https://travis-ci.org/omarryhan/flask-stateless-auth)
-[![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
 # Flask-Stateless-Auth
 
 A lightweight no-batteries-included stateless authentication extension for Flask.
@@ -8,9 +7,9 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 ## Features:
 
 - Flask-Stateless-Auth assists with stateless authentication in case a Flask developer decides to:
-    - Authenticate statelessly without the use of sessions. (Typically used when implementing REST APIs).
+    - Authenticate statelessly without the use of sessions.
     - Not to issue signed tokens e.g.(JWT), instead issue tokens that are to be validated against a db or a datastore of sorts.
-    - 
+  
 - Flask-Stateless-Auth stores a current_stateless_user variable in the request context upon authentication using the `token_required` decorator
 
 - Developer is free to implement their own authorization scheme, However:
@@ -18,6 +17,10 @@ A lightweight no-batteries-included stateless authentication extension for Flask
     - A typical `auth_type` is 'Bearer'
     - A typical `token` is a random b64 encoded string.
     - A typical `token_type` is: an access or refresh token
+
+- 2 Signals provided:
+    1. `user-authorized`
+    2. `user-unauthorized`
 
 ## Important Remarks:
 
@@ -27,7 +30,7 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 2. Flask-Stateless-Auth needs 2 callbacks in order to function properly:
 
     1. `token_loader`: Should load a token from your models given, a `token`, `token_type`, and `auth_type`
-    2. `user_loader`: Should load a user from your models given token(token loaded from token loader)
+    2. `user_loader`: Should load a user from your models given token(token loaded from `token_loader`)
 
 3. Flask-Stateless-Auth also needs a StatlessAuthError error handler. The handler will receive an error with the following attributes:
 
@@ -37,22 +40,13 @@ A lightweight no-batteries-included stateless authentication extension for Flask
     - `error.full_msg`: Error msg + type
     - The developer can then decide how to handle each error seperately by controlling the info they would want to give out to the api client.
 
-4. It is recommended that you raise a StatelessAuthError in case a token or a user cannot be loaded. However, you can still return None and FlaskStatelessAuth will return a generic error message and code.
+4. It is recommended that you raise a StatelessAuthError in case a token or a user cannot be loaded. However, you can still return `None` and FlaskStatelessAuth will return a generic error message and code.
 
-5. Your user model must have a `is_active` property which returns a boolean.
+5. Your token model must have an `is_expired()` method that takes a request's `auth_type` (e.g. 'bearer') and `token_type` (e.g. 'access' or 'refresh') and returns a boolean.
 
-6. Yout token model must have a `is_expired()` method that takes a request's `auth_type` (e.g. 'bearer') and `token_type` (e.g. 'access' or 'refresh').
+6. Your user model must have an `is_active` property that returns a boolean.
 
-7. If you don't want to implement point `5.` and `6.` then you can simply make your user and token models inherit from the `UserMixin` and `TokenMixin` mixins respecitvely.
-
-## API
-
-- StatelessAuthManager
-- StatelessAuthError
-- current_stateless_user
-- token_required()
-- TokenMixin
-- UserMixin
+7. If you don't want to implement point `5.` and `6.` then you can simply make your token and user models inherit from the `TokenMixin` and `UserMixin` mixins respecitvely.
 
 ## Installation
 
@@ -150,3 +144,12 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 
 ## Testing
 run tests with: `$tox`
+
+## API
+
+- StatelessAuthManager
+- StatelessAuthError
+- current_stateless_user
+- token_required()
+- TokenMixin
+- UserMixin
