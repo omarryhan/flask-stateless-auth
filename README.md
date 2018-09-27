@@ -130,7 +130,7 @@ A lightweight no-batteries-included stateless authentication extension for Flask
         return jsonify(data), 200
     
     @app.route('/whoami', methods=['GET'])
-    @token_required()
+    @token_required
     def whoami():
         data = {'my_username': current_stateless_user.username}
         return jsonify(data), 200

@@ -46,7 +46,10 @@ def _get_stateless_user():
         return getattr(_request_ctx_stack.top, 'stateless_user', None)
     else: return None
 
-def token_required(token_type=None, auth_type=None):
+def token_required(*args, token_type=None, auth_type=None):
+    ''' The args parameter should not be used.
+        Python will automatically pass this decorator your function if you don't pass it any args.
+        Though it will still work if you decorate your function with: `token_required()` instad of just `token_required` '''
     def inner(f):
         @wraps(f)
         def innermost(*args, **kwargs):
@@ -63,6 +66,8 @@ def token_required(token_type=None, auth_type=None):
                 user_authorized.send(app.stateless_auth_manager)
                 return f(*args, **kwargs)
         return innermost
+    if token_type is None and auth_type is None and args:
+        return inner(args[0])
     return inner
 
 class StatelessAuthError(Exception):
