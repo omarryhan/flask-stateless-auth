@@ -14,7 +14,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flask-stateless-auth",
-    version="0.0.15",
+    version="0.0.16",
     author="Omar Ryhan",
     author_email="omarryhan@gmail.com",
     license="MIT",
