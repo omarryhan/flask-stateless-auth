@@ -7,6 +7,7 @@ install_requires = [
 tests_require = [
     'flask_sqlalchemy',
     'pytest',
+    'tox'
 ]
 
 with open("README.md", "r") as fh:

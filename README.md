@@ -1,6 +1,12 @@
-[![Build Status](https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master)](https://travis-ci.org/omarryhan/flask-stateless-auth)
-# Flask-Stateless-Auth
+<p align="center">
+  <img src="https://vintagegraphics.ohsonifty.com/wp-content/uploads/2013/10/vgosn_free_clip_art_image_skeleton_key.png" alt="Logo" style="width:300px;"/>
+  <p align="center">
+    <a href="https://travis-ci.org/omarryhan/flask-stateless-auth"><img alt="Build Status" src="https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master"></a>
+    <a href="https://travis-ci.org/omarryhan/flask-stateless-auth"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
+  </p>
+</p>
 
+# Flask-Stateless-Auth
 A lightweight no-batteries-included stateless authentication extension for Flask.
 
 
@@ -101,6 +107,8 @@ A lightweight no-batteries-included stateless authentication extension for Flask
                     if token.refresh_token == token:
                         return token
             raise StatelessAuthError(msg='{} Invalid token'.format(token.type), code=401, type_='Token')
+        except StatelessAuthError:
+            raise
         except Exception as e:
             log.critical(e)
             raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
