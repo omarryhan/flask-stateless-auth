@@ -39,7 +39,7 @@ _signals = Namespace()
 user_authorized = _signals.signal('user-authorized')
 user_unauthorized = _signals.signal('user-unauthorized')
 
-current_stateless_user = LocalProxy(lambda: _get_stateless_user())
+current_stateless_user = LocalProxy(_get_stateless_user)
 
 def _get_stateless_user():
     if has_request_context:
