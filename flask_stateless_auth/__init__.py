@@ -39,12 +39,13 @@ _signals = Namespace()
 user_authorized = _signals.signal('user-authorized')
 user_unauthorized = _signals.signal('user-unauthorized')
 
-current_stateless_user = LocalProxy(_get_stateless_user)
 
 def _get_stateless_user():
     if has_request_context:
         return getattr(_request_ctx_stack.top, 'stateless_user', None)
     else: return None
+
+current_stateless_user = LocalProxy(_get_stateless_user)
 
 def token_required(*args, token_type=None, auth_type=None):
     ''' The args parameter should not be used.
