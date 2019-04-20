@@ -167,9 +167,9 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 
 ## Contact 📧
 
-Like my work? Have an exciting product and think we can work together?
+I currently work as a freelance software devloper. Like my work and got a gig for me?
 
-Let's talk. Send me an email @ omarryhan@gmail.com
+Want to hire me fulltime? Send me an email @ omarryhan@gmail.com
 
 ## Buy me a coffee ☕
 
