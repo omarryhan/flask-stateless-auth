@@ -3,6 +3,7 @@
   <p align="center">
     <a href="https://travis-ci.org/omarryhan/flask-stateless-auth"><img alt="Build Status" src="https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master"></a>
     <a href="https://github.com/omarryhan/flask-stateless-auth"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
+    <a href="https://github.com/python/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
     <a href="https://pepy.tech/badge/flask-stateless-auth"><img alt="Downloads" src="https://pepy.tech/badge/flask-stateless-auth"></a>
     <a href="https://pepy.tech/badge/flask-stateless-auth/month"><img alt="Monthly Downloads" src="https://pepy.tech/badge/flask-stateless-auth/month"></a>
   </p>
@@ -36,95 +37,97 @@ A lightweight no-batteries-included stateless authentication extension for Flask
 
 ## Quick Start 
 
-    # initializations
-    stateless_auth_manager = StatelessAuthManager()
-    app = Flask(__name__.split('.')[0])
+```python 3.7
+# initializations
+stateless_auth_manager = StatelessAuthManager()
+app = Flask(__name__.split('.')[0])
 
-    # configs
-    class Config:
-        #TOKEN_TYPE = 'Bearer'         # Default
-        #TOKEN_HEADER = 'Authorization'# Default
-        #ADD_CONTEXT_PROCESSOR = True  # Default
-        #DEFAULT_TOKEN_TYPE = 'access' # Default
+# configs
+class Config:
+    #TOKEN_TYPE = 'Bearer'         # Default
+    #TOKEN_HEADER = 'Authorization'# Default
+    #ADD_CONTEXT_PROCESSOR = True  # Default
+    #DEFAULT_TOKEN_TYPE = 'access' # Default
 
-    # models
-    class User(UserMixin):
-        def __init__(self, id, username):
-            self.id = id
-            self.username = username
+# models
+class User(UserMixin):
+    def __init__(self, id, username):
+        self.id = id
+        self.username = username
 
-    class Token(TokenMixin):
-        def __init__(self, user_id, access_token, refresh_token):
-            self.user_id = user_id
-            self.access_token = access_token
-            self.refresh_token = refresh_token 
+class Token(TokenMixin):
+    def __init__(self, user_id, access_token, refresh_token):
+        self.user_id = user_id
+        self.access_token = access_token
+        self.refresh_token = refresh_token 
 
-    # db
-    users = [
-        User(1, 'first_user'),
-        User(2, 'second_user')
-    ]
+# db
+users = [
+    User(1, 'first_user'),
+    User(2, 'second_user')
+]
 
-    tokens = [
-        Token(1, 'first_user_access_token', 'first_user_refresh_token'),
-        Token(2, 'second_user_access_token', 'second_user_refresh_token')
-    ]
+tokens = [
+    Token(1, 'first_user_access_token', 'first_user_refresh_token'),
+    Token(2, 'second_user_access_token', 'second_user_refresh_token')
+]
 
-    # First loader
-    @stateless_auth_manager.token_loader
-    def token_by(token, token_type, auth_type):
-    ''' where `token` is the token loaded from the header '''
-        try:
-            for token in tokens:
-                if token_type == 'access'
-                    if token.access_token == token:
-                        return token
-                elif token_type == 'refresh':
-                    if token.refresh_token == token:
-                        return token
-            raise StatelessAuthError(msg='{} Invalid token'.format(token.type), code=401, type_='Token')
-        except StatelessAuthError:
-            raise
-        except Exception as e:
-            log.critical(e)
-            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
-
-    # Second loader
-    @stateless_auth_manager.user_loader
-    def user_by_token(token):
-    ''' where `token` is the token model loaded from the token table '''
-        try:
-            for user in users:
-                if user.id == token.id: return user
-        except Exception as e:
-            log.critical(e)
-            raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
-        log.critical('token: {} belongs to a user: {} but user wasn't found'.format(token.id, user.id))
+# First loader
+@stateless_auth_manager.token_loader
+def token_by(token, token_type, auth_type):
+''' where `token` is the token loaded from the header '''
+    try:
+        for token in tokens:
+            if token_type == 'access'
+                if token.access_token == token:
+                    return token
+            elif token_type == 'refresh':
+                if token.refresh_token == token:
+                    return token
+        raise StatelessAuthError(msg='{} Invalid token'.format(token.type), code=401, type_='Token')
+    except StatelessAuthError:
+        raise
+    except Exception as e:
+        log.critical(e)
         raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
 
-    # Error handler
-    @app.errorhandler(StatelessAuthError)
-    def handle_stateless_auth_error(error):
-        return jsonify({'error': error.full_msg}), error.code
+# Second loader
+@stateless_auth_manager.user_loader
+def user_by_token(token):
+''' where `token` is the token model loaded from the token table '''
+    try:
+        for user in users:
+            if user.id == token.id: return user
+    except Exception as e:
+        log.critical(e)
+        raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
+    log.critical('token: {} belongs to a user: {} but user wasn't found'.format(token.id, user.id))
+    raise StatelessAuthError(msg='internal server error', code=500, type_='Server')
 
-    @app.route('/secret', methods=['GET'])
-    @token_required(token_type='access', auth_type='Bearer') #access by default
-    def secret():
-        data = {'secret': 'Stateless auth is awesome :O'}
-        return jsonify(data), 200
+# Error handler
+@app.errorhandler(StatelessAuthError)
+def handle_stateless_auth_error(error):
+    return jsonify({'error': error.full_msg}), error.code
 
-    @app.route('/whoami', methods=['GET'])
-    @token_required
-    def whoami():
-        data = {'my_username': current_stateless_user.username}
-        return jsonify(data), 200
+@app.route('/secret', methods=['GET'])
+@token_required(token_type='access', auth_type='Bearer') #access by default
+def secret():
+    data = {'secret': 'Stateless auth is awesome :O'}
+    return jsonify(data), 200
 
-    if __name__ == '__main__':
-        app.config.from_object(Config())
-        stateless_auth_manager.init_app(app)
-        app.run()
+@app.route('/whoami', methods=['GET'])
+@token_required
+def whoami():
+    data = {'my_username': current_stateless_user.username}
+    return jsonify(data), 200
 
-- For a more comprehensive illustration, check out: `tests/app_example.py` and `tests/test_app.py`.
+if __name__ == '__main__':
+    app.config.from_object(Config())
+    stateless_auth_manager.init_app(app)
+    app.run()
+```
+
+- For a more practical example, check out: `tests/app_example.py` and `tests/test_app.py`.
 
 ## Important Remarks:
 

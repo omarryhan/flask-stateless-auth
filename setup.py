@@ -1,14 +1,8 @@
 import setuptools
 
-install_requires = [
-    'flask'
-]
+install_requires = ["flask"]
 
-tests_require = [
-    'flask_sqlalchemy',
-    'pytest',
-    'tox'
-]
+tests_require = ["flask_sqlalchemy", "pytest", "tox"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
