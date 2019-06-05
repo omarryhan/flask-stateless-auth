@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://vintagegraphics.ohsonifty.com/wp-content/uploads/2013/10/vgosn_free_clip_art_image_skeleton_key.png" alt="Logo" width="400" height="200"/>
+  <img src="https://github.com/omarryhan/flask-stateless-auth/raw/master/logo.png" alt="Logo" width="400" height="200"/>
   <p align="center">
     <a href="https://travis-ci.org/omarryhan/flask-stateless-auth"><img alt="Build Status" src="https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master"></a>
     <a href="https://github.com/omarryhan/flask-stateless-auth"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
