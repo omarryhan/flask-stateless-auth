@@ -32,7 +32,7 @@ def user_string_generator(length=10, chars=string.ascii_lowercase + string.digit
     return "".join(random.choice(chars) for _ in range(length))
 
 
-@pytest.fixture("session")
+@pytest.fixture(scope="session")
 def client():
     config = TestConfig()
     app.config.from_object(config)
@@ -46,7 +46,7 @@ def client():
     os.unlink(config.DB_NAME)
 
 
-@pytest.fixture("session")
+@pytest.fixture(scope="session")
 def valid_test_user(client):
     user = {"username": user_string_generator()}
     data = json.dumps(user)
@@ -57,7 +57,7 @@ def valid_test_user(client):
     assert res.status_code == 201
 
 
-@pytest.fixture("function")
+@pytest.fixture(scope="function")
 def valid_test_user_token(client, valid_test_user):
     data = json.dumps(valid_test_user)
     res = client.post("/create_token", data=data)
