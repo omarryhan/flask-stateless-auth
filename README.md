@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://github.com/omarryhan/flask-stateless-auth/raw/master/logo.png" alt="Logo" width="400" height="200"/>
   <p align="center">
-    <a href="https://travis-ci.org/omarryhan/flask-stateless-auth"><img alt="Build Status" src="https://travis-ci.org/omarryhan/flask-stateless-auth.svg?branch=master"></a>
+    <a href="https://github.com/omarryhan/flask-stateless-auth/actions?query=workflow%3ACI"><img alt="Build Status" src="https://github.com/omarryhan/flask-stateless-auth/workflows/CI/badge.svg"></a>
     <a href="https://github.com/omarryhan/flask-stateless-auth"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
     <a href="https://github.com/python/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a>
     <a href="https://pepy.tech/badge/flask-stateless-auth"><img alt="Downloads" src="https://pepy.tech/badge/flask-stateless-auth"></a>
